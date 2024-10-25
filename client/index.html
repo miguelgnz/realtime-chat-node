@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Live Chat</title>
+    <meta charset="utf-8" />
+    <script type="module">
+      import { io } from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
+
+      const socket = io({
+        auth: {
+            serverOffset: 0
+        }
+      });
+
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+      const messages = document.getElementById("messages");
+
+      socket.on("chat message", (msg, serverOffset) => {
+        // const item = `<li>${msg}</li>`;
+        const item = document.createElement("li");
+        item.textContent = msg;
+        messages.insertAdjacentElement("beforeend", item);
+
+        socket.auth.serverOffset = serverOffset;
+      });
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (input.value) {
+          socket.emit("chat message", input.value);
+          input.value = "";
+        }
+      });
+    </script>
+    <style>
+      /* set dark mode */
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        
+        
+      }
+
+      body {
+        display: grid;
+        place-content: center;
+        height: 100vh;
+        padding: 36px;
+        grid-template-rows: 1fr;
+        
+      }
+
+      #chat {
+        border: 1px solid #000;
+        border-radius: 8px;
+        overflow: hidden;
+        width: 350px;
+        height: 100%;
+        position: relative;
+      }
+
+      #form {
+        display: flex;
+        gap: 8px;
+        padding: 8px;
+        border-top: 1px solid #000;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+
+      #input {
+        flex: 1;
+        padding: 0 8px;
+        border: 1px solid #eee;
+        border-radius: 9999px;
+      }
+
+      #input:focus {
+        outline: none;
+      }
+
+      #messages {
+        list-style-type: none;
+        padding: 8px;
+        overflow-y: auto;
+        height: calc(100% - 40px);
+      }
+
+      #messages > li {
+        padding: 0.5rem 1rem;
+      }
+
+      #messages > li:nth-child(odd) {
+        background-color: #f9f9f9;
+      }
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 9999px;
+        background-color: #000;
+        color: #fff;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="chat">
+      <ul id="messages"></ul>
+      <form id="form">
+        <input
+          type="text"
+          id="input"
+          name="message"
+          placeholder="Type a message..."
+        />
+        <button type="submit">Send</button>
+      </form>
+    </section>
+  </body>
+</html>
